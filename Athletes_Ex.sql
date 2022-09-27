@@ -52,4 +52,38 @@ Group By Name) as t1
 where rnk <= 5
 order by rnk asc
 
+-- 14. List down total gold, silver and bronze medals won by each country.
 
+SELECT * FROM   
+	(
+	Select nr.region, Medal from athlete_events AS ae
+	join noc_regions AS nr on ae.NOC = nr.NOC
+	--where Medal in ('Gold', 'Silver', 'Bronze')
+	where Medal <> 'NA'
+	) AS t1
+PIVOT 
+	(
+	count(Medal) 
+	For Medal in ( [Gold], [Silver], [Bronze])
+	) pivot_table
+order by Gold desc, Silver, Bronze 
+--Ans 3
+
+SELECT *
+FROM (
+ SELECT nr.region, medal
+ FROM athlete_events ae INNER JOIN noc_regions nr
+  ON ae.noc = nr.noc
+ WHERE medal <> 'NA'
+) t1
+PIVOT(COUNT(medal) FOR medal in ([Gold], [Silver], [Bronze])) pt
+ORDER BY gold+silver+bronze DESC
+
+Select OH.Region,
+Count(Case When O.Medal='Gold' Then 1 End) AS Gold,
+Count(Case When O.Medal='Silver' Then 1 End) AS Silver,
+Count(Case When O.Medal='Bronze' Then 1 End) AS Bronze
+from athlete_events O
+Join noc_regions OH On OH.NOC = O.NOC 
+Group by OH.Region
+Order By Gold Desc,Silver Desc,Bronze Desc
